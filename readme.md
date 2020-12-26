@@ -2,9 +2,9 @@
 
 [africa_short_names.xlsx](africa_short_names.xlsx) contains all investigated African countries, and the 3-character names
 
-dist_cepii.xls constains CommonColonizer, GeodesicDistance, contiguity info
+[dist_cepii.xls](dist_cepii.xls) constains CommonColonizer, GeodesicDistance, contiguity info
 
 *_solver.cpp is problem solvers
 
-gen_input.py create input.txt from data
+[gen_input.py](gen_input.py) create input.txt from data
 
