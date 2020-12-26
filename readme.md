@@ -1,1 +1,1 @@
-# привет!
+# This is a research project which we investigate the split into 3 alliances of African countries.
