@@ -9,20 +9,16 @@ mt19937 rnd(kRandomSeed);
 
 const int kGroups = 3;
 
-pair<vector<double>, vector<vector<double>>> read(istream& stream = std::cin) {
+vector<vector<double>> read(istream& stream = std::cin) {
     int n;
     stream >> n;
-    vector<double> w(n);
-    for (auto&x : w) {
-        stream >> x;
-    }
     vector<vector<double>> d(n, vector<double>(n));
     for (auto& x : d) {
         for (auto& y : x) {
             stream >> y;
         }
     }
-    return {w, d};
+    return d;
 }
 
 void print_conqueror(const vector<int>& conq, ostream& stream = std::cout) {
@@ -31,17 +27,17 @@ void print_conqueror(const vector<int>& conq, ostream& stream = std::cout) {
     }
 }
 
-double calc_utility(int i, const vector<int>& colony, const vector<double>& w, const vector<vector<double>>& d) {
+double calc_utility(int i, const vector<int>& colony, const vector<vector<double>>& d) {
     double utility = 0;
     for (size_t j = 0; j < colony.size(); ++j) {
         if (colony[j] == colony[i]) {
-            utility += w[j] * d[i][j];
+            utility += d[i][j];
         }
     }
     return utility;
 }
 
-vector<pair<int, int>> is_nash_eq(const vector<int>& colony, const vector<double>& w, const vector<vector<double>>& d) {
+vector<pair<int, int>> is_nash_eq(const vector<int>& colony, const vector<vector<double>>& d) {
     int cnt[3] = { 0 };
     for (int n_colony : colony) {
         ++cnt[n_colony];
@@ -54,10 +50,10 @@ vector<pair<int, int>> is_nash_eq(const vector<int>& colony, const vector<double
     for (size_t i = 0; i < colony.size(); ++i) {
         if (cnt[colony[i]] > 1) {
             int was = colony[i];
-            double current_utility = calc_utility(i, colony, w, d);
+            double current_utility = calc_utility(i, colony, d);
             for (int j = 0; j < kGroups && j != was; ++j) {
                 new_colony[i] = j;
-                if (calc_utility(i, new_colony, w, d) > current_utility) {
+                if (calc_utility(i, new_colony, d) > current_utility) {
                     can_change.push_back({ i, j });
                 }
             }
@@ -68,8 +64,8 @@ vector<pair<int, int>> is_nash_eq(const vector<int>& colony, const vector<double
     return can_change;
 }
 
-std::vector<int> find_conqueror(const vector<double>& w, const vector<vector<double>>& d) {
-    int n = w.size();
+std::vector<int> find_conqueror(const vector<vector<double>>& d) {
+    int n = d.size();
     vector<int> conq(n);
     for (int i = 0; i < n; ++i) {
         conq[i] = i % kGroups;
@@ -77,15 +73,15 @@ std::vector<int> find_conqueror(const vector<double>& w, const vector<vector<dou
 
     int count_iters = 0;
 
-    auto need_change = is_nash_eq(conq, w, d);
-    while (!need_change.empty())  {
+    auto need_change = is_nash_eq(conq, d);
+    while (!need_change.empty()) {
         if (count_iters % 10000 == 0) {
             cerr << "Now " << count_iters << "iters \n";
         }
         uniform_int_distribution<int> rand_int(0, need_change.size());
         auto [i, j] = need_change[rand_int(rnd)];
         conq[i] = j;
-        need_change = is_nash_eq(conq, w, d);
+        need_change = is_nash_eq(conq, d);
         ++count_iters;
     }
 
@@ -93,7 +89,7 @@ std::vector<int> find_conqueror(const vector<double>& w, const vector<vector<dou
 }
 
 int main() {
-    auto [w, d] = read();
-    auto conq = find_conqueror(w, d);
-    print_conqueror(conq);
+    auto d = read();
+    auto conqueror = find_conqueror(d);
+    print_conqueror(conqueror);
 }
