@@ -3,12 +3,10 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
-vector<vector<double>> read_matrix(istream& stream) {
+std::vector<std::vector<double>> read_matrix(std::istream& stream) {
     int n;
     stream >> n;
-    vector<vector<double>> d(n, vector<double>(n));
+    std::vector<std::vector<double>> d(n, std::vector<double>(n));
     for (auto& x : d) {
         for (auto& y : x) {
             stream >> y;
@@ -17,8 +15,8 @@ vector<vector<double>> read_matrix(istream& stream) {
     return d;
 }
 
-vector<int> read_answer(istream& stream) {
-    vector<int> ans;
+std::vector<int> read_answer(std::istream& stream) {
+    std::vector<int> ans;
     int x;
     while (stream >> x) {
         assert(x >= 1 && x <= 3);
@@ -27,7 +25,7 @@ vector<int> read_answer(istream& stream) {
     return ans;
 }
 
-double calc_utility(int i, const vector<int>& colony, const vector<vector<double>>& d) {
+double calc_utility(int i, const std::vector<int>& colony, const std::vector<std::vector<double>>& d) {
     double utility = 0;
     for (size_t j = 0; j < colony.size(); ++j) {
         if (colony[j] == colony[i]) {
@@ -37,7 +35,7 @@ double calc_utility(int i, const vector<int>& colony, const vector<vector<double
     return utility;
 }
 
-void check_nash_eq(const vector<int>& colony, const vector<vector<double>>& d) {
+void check_nash_equilibrium(const std::vector<int>& colony, const std::vector<std::vector<double>>& d) {
     const int kGroups = 3;
 
     int cnt[kGroups] = { 0 };
@@ -45,19 +43,21 @@ void check_nash_eq(const vector<int>& colony, const vector<vector<double>>& d) {
         ++cnt[n_colony];
     }
 
-    assert(cnt[0] && cnt[1] && cnt[2]);
+    bool does_alianses_not_empty = cnt[0] && cnt[1] && cnt[2];
+    assert(does_alianses_not_empty);
 
     auto new_colony = colony;
-
-    vector<pair<int, int>> can_change;
 
     for (size_t i = 0; i < colony.size(); ++i) {
         if (cnt[colony[i]] > 1) {
             int was = colony[i];
             double current_utility = calc_utility(i, colony, d);
-            for (int j = 0; j < kGroups && j != was; ++j) {
-                new_colony[i] = j;
-                assert(calc_utility(i, new_colony, d) <= current_utility);
+            for (int j = 0; j < kGroups; ++j) {
+                if (j != was) {
+                    new_colony[i] = j;
+                    double new_utility = calc_utility(i, new_colony, d);
+                    assert(new_utility <= current_utility);
+                }
             }
             new_colony[i] = was;
         }
@@ -67,12 +67,12 @@ void check_nash_eq(const vector<int>& colony, const vector<vector<double>>& d) {
 int main(int argc, char* argv[]) {
     assert(argc == 3);
     
-    ifstream input_stream(argv[1]);
-    ifstream answer_stream(argv[2]);
+    std::ifstream input_stream(argv[1]);
+    std::ifstream answer_stream(argv[2]);
 
     auto d = read_matrix(input_stream);
     auto ans = read_answer(answer_stream);
     assert(d.size() == ans.size());
 
-    check_nash_eq(ans, d);
+    check_nash_equilibrium(ans, d);
 }
