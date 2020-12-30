@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]
+then
+	echo "To run script write:"
+	echo "./runner.sh solvers/local_optimization_solver.cpp"
+	exit 1
+fi
+
 dist_matrix=dist_matrix.txt
 
 echo "Generate dist_matrix..."
@@ -49,9 +56,13 @@ else
 	exit 1
 fi
 
-echo ""
 echo "Solution founded!"
 
-echo "Start visualisation..."
-./visualisation.sh
-echo "Done."
+if [ "$2" == "-v" ] || [ "$2" == "--v" ]
+then
+	echo ""
+	echo "Start visualisation..."
+	./visualisation.sh
+	echo "Done."
+fi
+
