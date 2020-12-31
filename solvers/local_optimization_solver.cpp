@@ -7,7 +7,7 @@ const int kRandomSeed = 228;
 std::mt19937 rnd(kRandomSeed);
 
 const int kGroups = 3;
-const int kMinAlianceSize = 1;
+const int kMinAlianceSize = 2;
 
 std::vector<std::vector<double>> read(std::istream& stream = std::cin) {
     int n;
@@ -108,11 +108,14 @@ std::vector<int> find_conqueror(const std::vector<std::vector<double>>& d) {
     int n = d.size();
     std::vector<int> conqueor = generate_conqueror(n);
 
-    int count_iters = 0;
+    int64_t count_iters = 0;
 
     while (!is_nash_equilibrium(conqueor, d)) {
         if (count_iters % 10'000'000 == 0) {
             std::cerr << "Now " << count_iters << " iters \n";
+        }
+        if (rnd() % 10'000 == 0) {
+            conqueor = generate_conqueror(n);
         }
         auto pos_to_change = find_pos_to_change(conqueor, d);
         while (!is_nash_equilibrium(conqueor, d) && pos_to_change.empty()) {
